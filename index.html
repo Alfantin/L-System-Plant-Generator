@@ -1,0 +1,110 @@
+<html>
+<head>
+    <title>L-Sistem ve Kaplumbağa Grafikleri</title>
+</head>
+<body style="overflow:hidden; text-align:center;">
+    <input onclick="Ciz(3, 0.95, 1.4, 44, 30, 8, 'A', { 'A': 'B[+A][-A][BA]', 'B': 'BB' });" value="Ağaç1" type="button" />
+    <input onclick="Ciz(12, 0.78, 100, 44, 34, 7, 'A', { 'A': 'A[A][+A][-A]' });" value="Ağaç2" type="button" />
+    <input onclick="Ciz(1, 0.95, 2, 25, 25, 7, 'A', { 'A': 'F-[[A]+A]+F[+FA]-A', 'F': 'FF' });" value="Ağaç3" type="button" />
+    <input onclick="Ciz(10, 0.75, 100, 25, 30, 4, 'A', { 'A': 'A[-B][+B]', 'B': 'A[-B]A[+A-B]' });" value="Kuru Ağaç" type="button" />
+    <input onclick="Ciz(20, 0.75, 130, 45, 45, 8, 'A', { 'A': 'A[-A][+A]' });" value="Simetrik Ağaç" type="button" />
+    <input onclick="Ciz(2, 1, 10, 22, 22, 4, 'F', { 'F': 'FF-[-F+F+F]+[+F-F-F]' });" value="Çalı1" type="button" />
+    <input onclick="Ciz(2, 0.95, 7.5, 44, 30, 6, 'A', { 'A': '[+A][-A]AA' });" value="Çalı2" type="button" />
+    <input onclick="Ciz(2, 1, 12, 27, 27, 5, 'A', { 'A': 'A[+A][-A]A' });" value="Çalı3" type="button" />
+    <canvas id="canvas"></canvas>
+    <script type="text/javascript">
+
+        //canvas hazırla
+        var canvas = document.getElementById("canvas");
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        var ctx = canvas.getContext("2d");
+
+        function LSistem(tekrar, baslangic, talimatlar) {
+
+            //talimatları n kere uygula
+            for (var n = 0; n < tekrar; n++) {
+
+                //sembolleri yeniden yaz
+                var tmp = "";
+                for (var i in baslangic) {
+
+                    //sembol al
+                    var sembol = baslangic[i];
+
+                    //sembol içeriği varsa içeriğini yoksa sembolü sonuca ekle
+                    tmp += talimatlar[sembol] || sembol;
+                }
+
+                //başlangıcı güncelle
+                baslangic = tmp;
+            }
+
+            return baslangic;
+        }
+
+        function Kaplumbaga(kalinlik, carpan, uzunluk, sol, sag, komutlar) {
+
+            //başlangıç değerleri
+            var color = 1;
+            ctx.save();
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.translate(canvas.width / 2, canvas.height / 1.1);
+            ctx.rotate(180 * (Math.PI / 180));
+            ctx.lineWidth = kalinlik;
+            ctx.strokeStyle = "rgb(127," + color + ",0)";
+
+            //komut yorumlayıcı
+            for (var i in komutlar) {
+
+                //sıraki komut
+                var komut = komutlar[i];
+
+                //sola dön
+                if (komut == '-') {
+                    ctx.rotate(-sol * Math.PI / 180);
+                }
+
+                //sağa dön
+                else if (komut == '+') {
+                    ctx.rotate(+sag * Math.PI / 180);
+                }
+
+                //değerleri yedekle
+                else if (komut == '[') {
+                    ctx.save();
+                    ctx.scale(carpan, carpan);
+                    ctx.lineWidth *= carpan;
+                    ctx.strokeStyle = "rgb(127," + color++ * 32 + ",0)";
+                }
+
+                //değerleri geri yükle
+                else if (komut == ']') {
+                    ctx.restore();
+                    color--;
+                }
+
+                //diğer tüm komutlarda yürü
+                else {
+                    ctx.strokeRect(0, 0, 1, uzunluk);
+                    ctx.translate(0, uzunluk);
+                }
+
+            }
+
+            //parametreleri resetle
+            ctx.restore();
+
+        }
+
+        //LSistem + Kaplumbağa
+        function Ciz(kalinlik, carpan, uzunluk, sol, sag, tekrar, baslangic, talimatlar) {
+            Kaplumbaga(kalinlik, carpan, uzunluk, sol, sag, LSistem(tekrar, baslangic, talimatlar))
+        }
+
+        //test
+        Ciz(3, 0.95, 1.4, 44, 30, 8, 'A', { 'A': 'B[+A][-A][BA]', 'B': 'BB' });
+
+    </script>
+</body>
+</html>
